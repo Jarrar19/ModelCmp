@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dual-Dataset XAI Benchmark — Interpretable vs. Black-Box</title>
+<link rel="stylesheet" href="style.css?v=4" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="mark">XAI</div>
+      <div class="title">DualXAI Benchmark</div>
+      <div class="subtitle">Small vs. Large-Scale Study</div>
+    </div>
+
+    <!-- DATASET SELECTOR IN SIDEBAR -->
+    <div class="sidebar-section-label">Select Dataset</div>
+    <div class="dataset-switcher-sidebar">
+      <button class="dataset-btn active" data-dataset="heart" id="side-btn-heart">
+        <span class="d-icon">🏥</span>
+        <span class="d-text">
+          <strong>Heart Disease</strong>
+          <small>Clinical · 297 cases</small>
+        </span>
+      </button>
+      <button class="dataset-btn" data-dataset="adult" id="side-btn-adult">
+        <span class="d-icon">📊</span>
+        <span class="d-text">
+          <strong>Adult Census</strong>
+          <small>Complex · 32,561 cases</small>
+        </span>
+      </button>
+    </div>
+
+    <div class="sidebar-section-label" style="margin-top:16px;">Navigation</div>
+    <nav>
+      <button class="nav-item active" data-view="overview" id="nav-overview"><span class="dot"></span>Overview & Theory</button>
+      <button class="nav-item" data-view="diagnose" id="nav-diagnose"><span class="dot"></span>Live Prediction & XAI</button>
+      <button class="nav-item" data-view="performance" id="nav-performance"><span class="dot"></span>Model Benchmarks</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <strong>Explainable AI (TAE 1)</strong><br/>
+      Logistic Regression vs. XGBoost<br/>
+      Performance vs. Explainability
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW CONTAINER -->
+  <main class="main">
+
+    <!-- DATASET BANNER -->
+    <div class="active-dataset-banner">
+      <div class="banner-left">
+        <span class="banner-tag" id="banner-tag">Clinical Benchmark</span>
+        <span class="banner-title" id="banner-title">UCI Cleveland Heart Disease (297 patients)</span>
+      </div>
+      <div class="banner-thesis" id="banner-thesis">
+        Small Clinical Cohort: Interpretable model matches or beats black-box (AUC 0.9498 vs 0.9263).
+      </div>
+    </div>
+
+    <!-- 1. OVERVIEW VIEW -->
+    <section class="view active" id="view-overview">
+      <div class="page-head">
+        <div class="badge-tag">Empirical Finding · Problem-Based TAE 1</div>
+        <h1>Does the more complex model deserve your trust?</h1>
+        <p>In this project, we test a core question in Explainable AI: <strong>How does dataset scale and complexity change the trade-off between an inherently interpretable model (Logistic Regression) and a black-box ensemble (XGBoost)?</strong></p>
+      </div>
+
+      <!-- KEY EMPIRICAL FINDING HIGHLIGHT -->
+      <div class="card comparison-highlight-card">
+        <div class="card-title" style="color:var(--teal);">The Core Empirical Finding Across Datasets</div>
+        <div class="grid-2" style="margin-top:14px;">
+          <div class="finding-box">
+            <div class="finding-header">
+              <span class="finding-badge badge-clinical">Small Clinical Dataset</span>
+              <strong>Cleveland Heart Disease (297 cases)</strong>
+            </div>
+            <p class="finding-desc">On smaller tabular data, the regularized linear model avoids overfitting. Logistic Regression achieves an <strong>AUC of 0.9498</strong>, exceeding XGBoost's <strong>0.9263</strong> with identical sensitivity (82.1%).</p>
+            <div class="finding-verdict"><strong>Verdict:</strong> Zero reason to sacrifice glass-box interpretability for a black box.</div>
+          </div>
+
+          <div class="finding-box">
+            <div class="finding-header">
+              <span class="finding-badge badge-complex">Complex Large Dataset</span>
+              <strong>Adult Census Income (32,561 cases)</strong>
+            </div>
+            <p class="finding-desc">As sample size scales into the tens of thousands, XGBoost unlocks higher-order non-linear feature interactions, pulling ahead with <strong>87.69% accuracy (+3.06% lead)</strong> and <strong>0.9305 AUC (+0.039 lead)</strong>.</p>
+            <div class="finding-verdict"><strong>Verdict:</strong> Complex patterns favor black-box ensembles, but at a severe explanation latency cost.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-row" id="overview-stats">
+        <div class="stat"><div class="label">Current Dataset</div><div class="value" id="stat-dataset-name">Heart Disease</div></div>
+        <div class="stat"><div class="label">Total Records</div><div class="value" id="stat-total-records">297</div></div>
+        <div class="stat"><div class="label">Logistic Reg. AUC</div><div class="value" id="stat-lr-auc">0.950</div></div>
+        <div class="stat"><div class="label">XGBoost AUC</div><div class="value" id="stat-xgb-auc">0.926</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card model-intro-card">
+          <div class="card-pill pill-interpretable">Glass-Box · Inherently Interpretable</div>
+          <div class="card-title">Logistic Regression</div>
+          <div class="card-sub">Exact mathematical transparency by construction</div>
+          <p>Every prediction is computed as an auditable linear sum of weights ($z = \beta_0 + \sum \beta_i x_i$). Every weight is exact, constant, and mathematically faithful. Zero post-hoc approximation error.</p>
+          <div class="card-footer-note"><strong>Fidelity:</strong> 100% faithful to the actual decision mechanism.</div>
+        </div>
+
+        <div class="card model-intro-card">
+          <div class="card-pill pill-blackbox">Black-Box · Post-Hoc Explainability</div>
+          <div class="card-title">XGBoost Ensemble</div>
+          <div class="card-sub">Tree splits, explained via SHAP</div>
+          <p>Ensemble of boosted decision trees voting together. The internal logic cannot be written as a single algebraic equation, requiring <strong>SHAP (Shapley Additive exPlanations)</strong> to estimate game-theoretic marginal contributions.</p>
+          <div class="card-footer-note"><strong>Fidelity:</strong> Post-hoc approximation (an explanation of the model, not the model itself).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. DIAGNOSE / PREDICT VIEW -->
+    <section class="view" id="view-diagnose">
+      <div class="page-head">
+        <h1 id="diagnose-heading">Predict & Explain: Cleveland Heart Disease</h1>
+        <p id="diagnose-desc">Enter patient clinical indicators to evaluate disease risk side-by-side using both models.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title" id="form-card-title">Input Profile</div>
+        <div class="card-sub" id="form-card-sub">Standardized indicators for the current dataset:</div>
+
+        <form id="patient-form">
+          <div id="form-fields">
+            <!-- Dynamically populated with grouped inputs/selects based on active dataset -->
+          </div>
+
+          <div class="submit-row">
+            <button class="btn-primary" id="submit-btn" type="submit">Run Both Models & Compute XAI</button>
+            <span class="status-note" id="submit-status"></span>
+          </div>
+        </form>
+      </div>
+
+      <!-- RESULTS CONTAINER -->
+      <div id="results-wrap"></div>
+    </section>
+
+    <!-- 3. PERFORMANCE VIEW -->
+    <section class="view" id="view-performance">
+      <div class="page-head">
+        <h1>Model Performance & Validation</h1>
+        <p>Compare performance metrics and ROC curves for both models under the selected dataset and across dataset scales.</p>
+      </div>
+
+      <!-- CURRENT DATASET METRICS -->
+      <div class="card">
+        <div class="card-title" id="metrics-card-title">Benchmark Table: Cleveland Heart Disease</div>
+        <table class="metrics-table" id="metrics-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Logistic Regression (Interpretable)</th>
+              <th>XGBoost (Black-Box)</th>
+              <th>Advantage / Note</th>
+            </tr>
+          </thead>
+          <tbody id="metrics-tbody">
+            <tr><td colspan="4" class="status-note">Loading benchmark metrics…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DUAL ROC CURVES -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Current Dataset ROC Curve</div>
+          <div class="card-sub" id="roc-sub">Discriminative curve across classification thresholds:</div>
+          <img src="roc_curve_heart.png" alt="ROC curve" class="roc-image" id="roc-image" />
+        </div>
+
+        <div class="card">
+          <div class="card-title">Cross-Dataset Scale Analysis (TAE 1)</div>
+          <div class="discussion-content">
+            <h4>1. Small Data (Heart Disease - 297 cases)</h4>
+            <p>Logistic Regression matches XGBoost in Accuracy (83.3% vs 85.0%) and achieves superior ROC-AUC (0.9498 vs 0.9263). The high variance of tree models yields no clinical accuracy gain.</p>
+
+            <h4>2. Big Data (Adult Census - 32,561 cases)</h4>
+            <p>XGBoost pulls ahead decisively (87.69% vs 84.63% Accuracy, 0.9305 vs 0.8916 AUC). With 32k rows, trees learn complex non-linear combinations of Capital Gains, Education, and Age without overfitting.</p>
+
+            <h4>3. The Explainability Trade-Off</h4>
+            <p>While XGBoost wins on large data, computing exact TreeSHAP values for real-time inference is computationally expensive ($O(T \cdot L \cdot D^2)$), whereas Logistic Regression explanations take microseconds ($O(D)$).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="script.js?v=4"></script>
+</body>
+</html>

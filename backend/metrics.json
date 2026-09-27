@@ -1,0 +1,130 @@
+{
+  "heart": {
+    "dataset_name": "Cleveland Heart Disease",
+    "cohort_type": "Clinical / Small",
+    "n_total": 297,
+    "n_train": 237,
+    "n_test": 60,
+    "n_features": 13,
+    "interpretable": {
+      "name": "Logistic Regression",
+      "accuracy": 0.8333,
+      "precision": 0.8462,
+      "recall": 0.7857,
+      "f1": 0.8148,
+      "roc_auc": 0.9498,
+      "confusion_matrix": [
+        [
+          28,
+          4
+        ],
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    "blackbox": {
+      "name": "XGBoost",
+      "accuracy": 0.85,
+      "precision": 0.88,
+      "recall": 0.7857,
+      "f1": 0.8302,
+      "roc_auc": 0.9263,
+      "confusion_matrix": [
+        [
+          29,
+          3
+        ],
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    "finding": "On small, high-stakes medical data, the interpretable model matches or beats the black-box (AUC 0.9498 vs 0.9263)."
+  },
+  "adult": {
+    "dataset_name": "Adult Census Income",
+    "cohort_type": "Complex / Large-Scale Benchmark",
+    "n_total": 32561,
+    "n_train": 26048,
+    "n_test": 6513,
+    "n_features": 12,
+    "interpretable": {
+      "name": "Logistic Regression",
+      "accuracy": 0.8463,
+      "precision": 0.7376,
+      "recall": 0.5612,
+      "f1": 0.6375,
+      "roc_auc": 0.8916,
+      "confusion_matrix": [
+        [
+          4632,
+          313
+        ],
+        [
+          688,
+          880
+        ]
+      ]
+    },
+    "blackbox": {
+      "name": "XGBoost",
+      "accuracy": 0.8769,
+      "precision": 0.7824,
+      "recall": 0.6767,
+      "f1": 0.7257,
+      "roc_auc": 0.9305,
+      "confusion_matrix": [
+        [
+          4650,
+          295
+        ],
+        [
+          507,
+          1061
+        ]
+      ]
+    },
+    "finding": "On large complex data with non-linear feature interactions, XGBoost pulls decisively ahead (+3.12% Accuracy, +0.039 AUC)."
+  },
+  "interpretable": {
+    "name": "Logistic Regression",
+    "accuracy": 0.8333,
+    "precision": 0.8462,
+    "recall": 0.7857,
+    "f1": 0.8148,
+    "roc_auc": 0.9498,
+    "confusion_matrix": [
+      [
+        28,
+        4
+      ],
+      [
+        6,
+        22
+      ]
+    ]
+  },
+  "blackbox": {
+    "name": "XGBoost",
+    "accuracy": 0.85,
+    "precision": 0.88,
+    "recall": 0.7857,
+    "f1": 0.8302,
+    "roc_auc": 0.9263,
+    "confusion_matrix": [
+      [
+        29,
+        3
+      ],
+      [
+        6,
+        22
+      ]
+    ]
+  },
+  "n_train": 237,
+  "n_test": 60
+}
