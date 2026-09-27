@@ -63,7 +63,7 @@ Both models were trained using an **80/20 stratified train/test split** with fix
 | **Precision** | 84.62% | **88.00%** | 73.76% | **78.24%** |
 | **Recall (Sensitivity)** | **78.57%** *(Identical)* | **78.57%** *(Identical)* | 56.12% | **67.67%** *(+11.55% lead)* |
 | **F1-Score** | 0.8148 | **0.8302** | 0.6375 | **0.7257** |
-| **Confusion Matrix** | $\begin{bmatrix} 28 & 4 \\ 6 & 22 \end{bmatrix}$ | $\begin{bmatrix} 29 & 3 \\ 6 & 22 \end{bmatrix}$ | $\begin{bmatrix} 4632 & 313 \\ 688 & 880 \end{bmatrix}$ | $\begin{bmatrix} 4650 & 295 \\ 507 & 1061 \end{bmatrix}$ |
+| **Confusion Matrix (TN, FP / FN, TP)** | `[28, 4] / [6, 22]` | `[29, 3] / [6, 22]` | `[4632, 313] / [688, 880]` | `[4650, 295] / [507, 1061]` |
 | **Explanation Fidelity** | **100% Ground-Truth Faithful** | Post-Hoc Approximation | **100% Ground-Truth Faithful** | Post-Hoc Approximation |
 | **XAI Compute Latency** | **Microseconds ($O(D)$)** | Milliseconds ($O(T \cdot L \cdot D^2)$) | **Microseconds ($O(D)$)** | Milliseconds ($O(T \cdot L \cdot D^2)$) |
 | **Empirical Verdict** | 🏆 **Interpretable Model Wins on Discrimination (ROC-AUC)**: Zero justification for a black box. | | 🏆 **Black-Box Wins on Non-Linear Scale**: Complex interactions yield +3.06% Accuracy & +11.55% Recall. | |
@@ -116,27 +116,33 @@ ModelCmp/
 ### High-Level System Data Flow
 ```mermaid
 flowchart TD
-    subgraph Data & Training Pipeline
-        D1[UCI Cleveland Heart Dataset\n297 records, 13 features] --> P1[Stratified Split & Scaling]
-        D2[Adult Census Income Dataset\n32,561 records, 12 features] --> P2[Stratified Split & Scaling]
-        P1 --> LR1[Logistic Regression\nmax_iter=1000]
-        P1 --> XGB1[XGBoost Classifier\ndepth=3, n_est=100]
-        P2 --> LR2[Logistic Regression\nmax_iter=1000]
-        P2 --> XGB2[XGBoost Classifier\ndepth=5, n_est=150]
-        LR1 & XGB1 & LR2 & XGB2 --> Save[Artifact Serialization\npkl, json, png]
+    subgraph Pipeline["Data & Training Pipeline"]
+        D1["UCI Cleveland Heart Dataset (297 records, 13 features)"] --> P1["Stratified Split & Scaling"]
+        D2["Adult Census Income Dataset (32,561 records, 12 features)"] --> P2["Stratified Split & Scaling"]
+        P1 --> LR1["Logistic Regression (max_iter=1000)"]
+        P1 --> XGB1["XGBoost Classifier (depth=3, n_estimators=100)"]
+        P2 --> LR2["Logistic Regression (max_iter=1000)"]
+        P2 --> XGB2["XGBoost Classifier (depth=5, n_estimators=150)"]
+        LR1 --> Save["Artifact Serialization (.pkl, .json, .png)"]
+        XGB1 --> Save
+        LR2 --> Save
+        XGB2 --> Save
     end
 
-    subgraph FastAPI Backend
-        Save --> Srv[app.py REST Service]
-        Client[Browser / User Input] -->|POST /api/predict| Srv
+    subgraph Backend["FastAPI Backend"]
+        Save --> Srv["FastAPI REST Service (app.py)"]
+        Client["Browser Client / Clinician"] -->|POST /api/predict| Srv
         Client -->|POST /api/explain| Srv
-        Srv -->|Exact Attribution wi * xi| GlassBoxXAI[Linear Attribution Engine]
-        Srv -->|TreeExplainer Shapley Values| SHAPEngine[Game-Theoretic SHAP Engine]
+        Srv -->|Exact Linear Weights| GlassBoxXAI["Linear Attribution Engine"]
+        Srv -->|TreeSHAP Shapley Values| SHAPEngine["Game-Theoretic SHAP Engine"]
     end
 
-    subgraph Interactive Frontend
-        GlassBoxXAI & SHAPEngine --> UI[Dynamic Web Application\nindex.html + script.js]
-        UI --> Views[Overview & Theory | Live Prediction & XAI | Benchmarks & ROC]
+    subgraph Frontend["Interactive Web Frontend"]
+        GlassBoxXAI --> UI["Single-Page Application (index.html + script.js)"]
+        SHAPEngine --> UI
+        UI --> V1["Overview & Theory View"]
+        UI --> V2["Live Prediction & XAI View"]
+        UI --> V3["Model Benchmarks & ROC View"]
     end
 ```
 
